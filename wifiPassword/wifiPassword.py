@@ -30,13 +30,13 @@ optional arguments:
 
     def getresult(self, command, flag=False):
         try:
-            output, err = subprocess.Popen(
+            output, _ = subprocess.Popen(
                 command, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=None,
                 shell=True
             ).communicate()
-            output, err = self.decoderesult(output, err, flag)
-            return output, err
+            output = self.decoderesult(output, flag)
+            return output
         except Exception as e:
             print(Fore.RED + str(e) + Style.RESET_ALL)
             self.usage()
@@ -55,7 +55,7 @@ optional arguments:
         elif self.system == "win32":
             command = "netsh wlan show profile name=" + \
                 self.wifiName + " key=clear | findstr Key"
-        output, err = self.getresult(command)
+        output = self.getresult(command)
         if output == "":
             print(Fore.RED + 'Profile "' + self.wifiName +
                   '" is not found on the system.' + Style.RESET_ALL)
@@ -70,7 +70,7 @@ optional arguments:
             command = ""
         elif self.system == "win32":
             command = "netsh wlan show interfaces | findstr SSID"
-        output, err = self.getresult(command, True)
+        output = self.getresult(command, True)
         if output == "":
             print(Fore.RED + 'Either you are not connected to any network or' +
                   ' the system doesn\'t find any network' +
@@ -78,36 +78,39 @@ optional arguments:
         else:
             self.getpassword(output)
 
-    def decoderesult(self, output, err, flag=False):
+    def decoderesult(self, output, flag=False):
         try:
             if sys.version_info[0] == 3:
                 output = output.decode()
-                err = err.decode()
             if flag is True:
                 output = output[0:output.find("\n")]
             output = output.strip('\r|\n')
-            err = err.strip('\r|\n')
             if output != "":
                 output = output.replace(" ", '')
                 output = output[output.find(":") + 1:]
             output = output[output.find("=>") + 1:]
-            return output, err
+            return output
         except Exception as e:
-            print(Fore.RED + str(e))
+            print(Fore.RED + str(e) + Style.RESET_ALL)
             sys.exit(2)
 
 
 def main():
     '''A cross platform CLI tool to get connected wifi network\'s password.'''
-    parser = argparse.ArgumentParser()
-    parser.add_argument('wifi_name', nargs='?',
-                        help="Name of the WIFI Network", type=str)
-    args = parser.parse_args()
-    ob = WifiPassword()
-    if args.wifi_name is not None:
-        ob.getpassword(args.wifi_name)
-    else:
-        ob.getprofile()
+    try:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('wifi_name', nargs='?',
+                            help="Name of the WIFI Network", type=str)
+        args = parser.parse_args()
+        ob = WifiPassword()
+        if args.wifi_name is not None:
+            ob.getpassword(args.wifi_name)
+        else:
+            ob.getprofile()
+    except Exception as e:
+        print(Fore.RED + str(e) + Style.RESET_ALL)
+        parser.print_help()
+        sys.exit(2)
 
 
 if __name__ == '__main__':
