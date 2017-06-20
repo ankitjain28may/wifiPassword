@@ -88,7 +88,7 @@ optional arguments:
             if output != "":
                 output = output.replace(" ", '')
                 output = output[output.find(":") + 1:]
-            output = output[output.find("=>") + 1:]
+            output = output[output.find("=") + 1:]
             return output
         except Exception as e:
             print(Fore.RED + str(e) + Style.RESET_ALL)

@@ -5,7 +5,7 @@ import sys
 
 setup(
     name='wifiPassword',
-    version='1.0',
+    version='1.1',
     description='A cross platform CLI tool to get connected wifi network\'s password.',
     long_description=open('README.rst').read(),
     author='Ankit Jain',
@@ -19,7 +19,6 @@ setup(
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
