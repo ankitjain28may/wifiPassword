@@ -62,6 +62,7 @@ class wifiPassword:
         if output != "":
             output = output.replace(" ", '')
             output = output[output.find(":") + 1:]
+        output = output[output.find("=>") + 1:]
         return output, err
 
 
