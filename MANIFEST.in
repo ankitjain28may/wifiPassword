@@ -1,0 +1,2 @@
+include config.cfg
+recursive-include data *
