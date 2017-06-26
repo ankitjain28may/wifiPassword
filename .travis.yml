@@ -14,6 +14,7 @@ install:
 
 script:
   - flake8 wifiPassword
+  - python ./tests/test.py
 
 after_success:
   coveralls
