@@ -7,7 +7,7 @@ class TestWifiPassword(unittest.TestCase):
 
     def test_wifi_password(self):
         ob = WifiPassword()
-        pas = ob.getpassword("ankit")
+        pas = ob.getprofile()
         self.assertEqual(pas, "Password for the network ankit: jain1234")
 
 if __name__ == '__main__':

@@ -56,12 +56,7 @@ optional arguments:
             command = "netsh wlan show profile name=" + \
                 self.wifiName + " key=clear | findstr Key"
         output = self.getresult(command)
-        if output == "":
-            print(Fore.RED + 'Profile "' + self.wifiName +
-                  '" is not found on the system.' + Style.RESET_ALL)
-        else:
-            print(Fore.GREEN + 'Password for the network ' + Fore.YELLOW +
-                  self.wifiName + ': ' + output + Style.RESET_ALL)
+        return output
 
     def getprofile(self):
         if self.system == "linux" or self.system == "linux2":
@@ -71,12 +66,7 @@ optional arguments:
         elif self.system == "win32":
             command = "netsh wlan show interfaces | findstr SSID"
         output = self.getresult(command, True)
-        if output == "":
-            print(Fore.RED + 'Either you are not connected to any network or' +
-                  ' the system doesn\'t find any network' +
-                  Style.RESET_ALL)
-        else:
-            self.getpassword(output)
+        return output
 
     def decoderesult(self, output, flag=False):
         try:
@@ -103,10 +93,25 @@ def main():
                             help="Name of the WIFI Network", type=str)
         args = parser.parse_args()
         ob = WifiPassword()
-        if args.wifi_name is not None:
-            ob.getpassword(args.wifi_name)
+        wifiName = args.wifi_name
+        output = ""
+        if wifiName is not None:
+            output = ob.getpassword(wifiName)
         else:
-            ob.getprofile()
+            wifiName = ob.getprofile()
+            if wifiName == "":
+                print(Fore.RED + 'Either you are not connected to any network or' +
+                      ' the system doesn\'t find any network' +
+                      Style.RESET_ALL)
+            else:
+                output = ob.getpassword(wifiName)
+
+        if output == "":
+            print(Fore.RED + 'Profile "' + wifiName +
+                  '" is not found on the system.' + Style.RESET_ALL)
+        else:
+            print(Fore.GREEN + 'Password for the network ' + Fore.YELLOW +
+                  wifiName + ': ' + output + Style.RESET_ALL)
     except Exception as e:
         print(Fore.RED + str(e) + Style.RESET_ALL)
         parser.print_help()
