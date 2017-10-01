@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 import sys
+import os
 from colorama import Fore, Style, init
 init()
 
@@ -9,12 +10,91 @@ init()
     Email: ankitjain28may77@gmail.com
 '''
 
+def decoderesult(output, flag=False):
+    if sys.version_info[0] == 3:
+        output = output.decode()
+    if flag is True:
+        output = output[0:output.find("\n")]
+    output = output.strip('\r|\n')
+    if output != "":
+        output = output.replace(" ", '')
+        output = output[output.find(":") + 1:]
+    output = output[output.find("=") + 1:]
+    return output
+
+def getresult(command, flag=False):
+    output, _ = subprocess.Popen(
+        command, stdout=subprocess.PIPE,
+        stderr=None,
+        shell=True
+    ).communicate()
+    output = decoderesult(output, flag)
+    return output
+
+
+
+class BaseExtractor:
+    cmd_tmpl = None 
+    def _handle_result(self, res):
+        try:
+            return getresult(res)
+        except Exception as e:
+            print(Fore.RED + str(e) + Style.RESET_ALL)
+            sys.exit(2)
+
+    @classmethod
+    def is_applicable(cls):
+        raise NotImplementedError()
+
+    def get_password(self, wifi_name):
+        out = self.cmd_tmpl.format(essid=wifi_name)
+        return self._handle_result(out)
+
+class LinuxNetworkManagerExtractor(BaseExtractor):
+    netman_path = "/etc/NetworkManager/system-connections/"
+    cmd_tmpl = "sudo cat " + netman_path + "{essid} | grep psk="
+
+    @classmethod
+    def is_applicable(cls):
+        return sys.platform in ["linux", "linux2"] and os.path.exists(cls.netman_path)
+
+class LinuxNetctlExtractor(BaseExtractor):
+    netctl_path = "/etc/netctl/"
+    cmd_tmpl = "sudo cat " + netctl_path + "*{essid}* | grep Key | cut -f 2 -d \"=\""
+
+    @classmethod 
+    def is_applicable(cls):
+        return sys.platform in ["linux", "linux2"] and os.path.exists(cls.netctl_path)
+
+class MacExtractor(BaseExtractor):
+    cmd_tmpl = "security find-generic-password -D\"AirPort network password\" -a {essid} -g"
+
+    @classmethod
+    def is_applicable(cls):
+        return sys.platform == "darwin"
+
+class WindowsExtractor(BaseExtractor):
+    cmd_tmpl = "netsh wlan show profile name={essid} key=clear | findstr Key"
+
+    @classmethod
+    def is_applicable(cls):
+        return sys.platform == "win32"
 
 class WifiPassword:
+    avail_extractors = [
+        MacExtractor, WindowsExtractor, 
+        LinuxNetctlExtractor, LinuxNetworkManagerExtractor
+    ]
 
     def __init__(self):
         self.system = sys.platform
-        self.wifiName = None
+        self.wifiName = None 
+ 
+        self.extractor = None
+        for ext in self.avail_extractors:
+            if ext.is_applicable():
+                self.extractor = ext()
+                break
 
     def usage(self):
         usage = """
@@ -28,36 +108,10 @@ optional arguments:
             """
         print(usage)
 
-    def getresult(self, command, flag=False):
-        try:
-            output, _ = subprocess.Popen(
-                command, stdout=subprocess.PIPE,
-                stderr=None,
-                shell=True
-            ).communicate()
-            output = self.decoderesult(output, flag)
-            return output
-        except Exception as e:
-            print(Fore.RED + str(e) + Style.RESET_ALL)
-            self.usage()
-            sys.exit(2)
-
     def getpassword(self, name):
         self.wifiName = name
-        if self.system == "linux" or self.system == "linux2":
-            command = "sudo cat /etc/NetworkManager/system-connections/" + \
-                self.wifiName + "| grep psk="
-        elif self.system == "darwin":
-            print(Fore.RED + "It's not yet available for MAC" +
-                  Style.RESET_ALL)
-            self.usage()
-            sys.exit(2)
-        elif self.system == "win32":
-            command = "netsh wlan show profile name=" + \
-                self.wifiName + " key=clear | findstr Key"
-        output = self.getresult(command)
-        return output
-
+        return self.extractor.get_password(self.wifiName)
+       
     def getprofile(self):
         if self.system == "linux" or self.system == "linux2":
             command = "iwgetid -r"
@@ -65,25 +119,8 @@ optional arguments:
             command = ""
         elif self.system == "win32":
             command = "netsh wlan show interfaces | findstr SSID"
-        output = self.getresult(command, True)
+        output = getresult(command, True)
         return output
-
-    def decoderesult(self, output, flag=False):
-        try:
-            if sys.version_info[0] == 3:
-                output = output.decode()
-            if flag is True:
-                output = output[0:output.find("\n")]
-            output = output.strip('\r|\n')
-            if output != "":
-                output = output.replace(" ", '')
-                output = output[output.find(":") + 1:]
-            output = output[output.find("=") + 1:]
-            return output
-        except Exception as e:
-            print(Fore.RED + str(e) + Style.RESET_ALL)
-            sys.exit(2)
-
 
 def main():
     '''A cross platform CLI tool to get connected wifi network\'s password.'''
