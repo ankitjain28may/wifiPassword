@@ -1,5 +1,5 @@
 wifiPassword
-=====
+============
 
 .. image:: https://travis-ci.org/ankitjain28may/wifiPassword.svg?branch=master
    :target: https://travis-ci.org/ankitjain28may/wifiPassword
@@ -13,7 +13,7 @@ wifiPassword
 A cross platform CLI tool to get connected wifi network's password.
 
 Installation
-============
+~~~~~~~~~~~~
 
 -  Using ``pip``
 
@@ -31,16 +31,16 @@ Installation
 
 
 Usage
-=====
+~~~~~
+::
+       wifiPassword [wifi_name]
 
-``wifiPassword [wifi_name]``
-
-``wifiPassword -h <help>``
+       wifiPassword -h <help>
 
 Note : If you won't give wifi_name, it selects the profile of the connected network by default
 
 License
-=======
+~~~~~~~
 
 Copyright (c) 2016 Ankit Jain - Released under MIT License
 
