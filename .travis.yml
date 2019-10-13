@@ -9,12 +9,12 @@ python:
 install:
   - pip install --upgrade pip
   - pip install -r requirements.txt
-  - pip install flake8
-  - pip install coveralls
+  - pip install flake8 pytest coverage coveralls pytest-cov
 
 script:
   - flake8 wifiPassword
-  - python ./tests/test.py
+  - python setup.py install
+  - py.test --cov-report=xml  tests/test.py
 
 after_success:
   coveralls

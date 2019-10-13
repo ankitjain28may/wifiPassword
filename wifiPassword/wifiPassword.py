@@ -100,8 +100,8 @@ def main():
         else:
             wifiName = ob.getprofile()
             if wifiName == "":
-                print(Fore.RED + 'Either you are not connected to any network or' +
-                      ' the system doesn\'t find any network' +
+                print(Fore.RED + 'Either you are not connected to any ' +
+                      'network or the system doesn\'t find any network' +
                       Style.RESET_ALL)
             else:
                 output = ob.getpassword(wifiName)
