@@ -8,7 +8,7 @@ class TestWifiPassword(unittest.TestCase):
     def test_wifi_password(self):
         ob = WifiPassword()
         system = ob.system
-        self.assertEqual(system, "linux")
+        self.assertEqual(system, "linux2")
 
 if __name__ == '__main__':
     unittest.main()
