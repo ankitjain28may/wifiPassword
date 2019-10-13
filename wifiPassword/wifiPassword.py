@@ -60,8 +60,8 @@ optional arguments:
         if self.system == "linux" or self.system == "linux2":
             command = "iwgetid -r"
         elif self.system == "darwin":
-            command = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport" + \
-                " -I | sed -n 's/^ *SSID: //p'"
+            command = "/System/Library/PrivateFrameworks/Apple80211.framework/" + \
+                "Versions/Current/Resources/airport -I | sed -n 's/^ *SSID: //p'"
         elif self.system == "win32":
             command = "netsh wlan show interfaces | findstr SSID"
         output = self.getresult(command, True)
