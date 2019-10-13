@@ -48,10 +48,8 @@ optional arguments:
             command = "sudo cat /etc/NetworkManager/system-connections/" + \
                 self.wifiName + "| grep psk="
         elif self.system == "darwin":
-            print(Fore.RED + "It's not yet available for MAC" +
-                  Style.RESET_ALL)
-            self.usage()
-            sys.exit(2)
+            command = "sudo security find-generic-password -l" + \
+                self.wifiName + " -D 'AirPort network password' -w"
         elif self.system == "win32":
             command = "netsh wlan show profile name=" + \
                 self.wifiName + " key=clear | findstr Key"
@@ -62,7 +60,9 @@ optional arguments:
         if self.system == "linux" or self.system == "linux2":
             command = "iwgetid -r"
         elif self.system == "darwin":
-            command = ""
+            command = "/System/Library/PrivateFrameworks/" + \
+                "Apple80211.framework/Versions/Current/Resources/" + \
+                "airport -I | sed -n 's/^ *SSID: //p'"
         elif self.system == "win32":
             command = "netsh wlan show interfaces | findstr SSID"
         output = self.getresult(command, True)
