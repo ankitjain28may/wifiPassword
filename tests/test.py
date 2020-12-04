@@ -12,5 +12,6 @@ class TestWifiPassword(unittest.TestCase):
             system = system[:-1]
         self.assertEqual(system, "linux")
 
+
 if __name__ == '__main__':
     unittest.main()
