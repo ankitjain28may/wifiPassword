@@ -1,6 +1,6 @@
 import argparse
 import subprocess
-import sys
+import sys, platform
 from colorama import Fore, Style, init
 init()
 
@@ -45,8 +45,12 @@ optional arguments:
     def getpassword(self, name):
         self.wifiName = name
         if self.system == "linux" or self.system == "linux2":
-            command = "sudo cat /etc/NetworkManager/system-connections/" + \
-                self.wifiName + "| grep psk="
+            if platform.version().find("Ubuntu")!=-1:
+                command = "sudo cat /etc/NetworkManager/system-connections/" + \
+                    self.wifiName + ".nmconnection" + "| grep psk="
+            else:
+                command = "sudo cat /etc/NetworkManager/system-connections/" + \
+                    self.wifiName + "| grep psk="
         elif self.system == "darwin":
             command = "sudo security find-generic-password -l" + \
                 self.wifiName + " -D 'AirPort network password' -w"
